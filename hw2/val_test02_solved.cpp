@@ -82,6 +82,16 @@ void junk_data ( )
   {
     x[i] = i;
   }
+/* Need to initialize the remainder of the array before using it
+	in the following lines of the program
+   We assume that the intention is for the remainder of 
+	uninitialized variables were meant to =0
+*/
+  for ( i = 5; i<10; i++ )
+  {
+    x[i] = 0;
+  }
+
 //
 //  Copy some values.
 //  X = { 0, 1, ?c, 3, 4, ?b, ?b, ?c, ?d, ?e }.
