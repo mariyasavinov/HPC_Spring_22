@@ -20,6 +20,6 @@ all: $(TARGETS)
 
 
 clean:
-	rm -f MMult1 omp_solved2 omp_bug3 omp_bug4 omp_bug5 omp_bug6 val_test01_solved val_test02_solved
+	rm -f MMult1 omp_solved2 omp_solved3 omp_solved4 omp_bug5 omp_bug6 val_test01_solved val_test02_solved
 
 .PHONY: all, clean

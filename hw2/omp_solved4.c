@@ -13,11 +13,12 @@
 int main (int argc, char *argv[]) 
 {
 int nthreads, tid, i, j;
-double a[N][N];
+double *a;//[N][N];
 
 /* Fork a team of threads with explicit variable scoping */
-#pragma omp parallel shared(nthreads) private(i,j,tid,a)
+#pragma omp parallel shared(nthreads) private(i,j,tid,a) 
   {
+  a = (double*) malloc(N*N*sizeof(double)); // not enough memory on stack otherwise
 
   /* Obtain/print thread info */
   tid = omp_get_thread_num();
@@ -26,18 +27,22 @@ double a[N][N];
     nthreads = omp_get_num_threads();
     printf("Number of threads = %d\n", nthreads);
     }
+  #pragma omp barrier  // added this in to make sure number of threads prints first
   printf("Thread %d starting...\n", tid);
+  #pragma omp barrier
 
   /* Each thread works on its own private copy of the array */
   for (i=0; i<N; i++)
     for (j=0; j<N; j++)
-      a[i][j] = tid + i + j;
-
+      a[i*N+j] = tid + i + j;
   /* For confirmation */
-  printf("Thread %d done. Last element= %f\n",tid,a[N-1][N-1]);
+  printf("Thread %d done. Last element= %f\n",tid,a[N*N-1]);
 
+  free(a);
   }  /* All threads join master thread and disband */
-
+  
 }
+
+
 
 

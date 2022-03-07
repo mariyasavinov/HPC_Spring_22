@@ -17,7 +17,7 @@ float a[N], b[N], c[N];
 void print_results(float array[N], int tid, int section);
 
 /* Some initializations */
-for (i=0; i<N; i++)
+for (i=0; i<N; i++)      
   a[i] = b[i] = i * 1.0;
 
 #pragma omp parallel private(c,i,tid,section)
@@ -83,7 +83,8 @@ void print_results(float array[N], int tid, int section)
     printf("\n");
   } /*** end of critical ***/
 
-  #pragma omp barrier
+  //#pragma omp barrier  // want it to be clear you are done and synchronizing after printing results of the section?  also this way all threads are exiting
+ // otherwise these threads are stalled here waiting for remaining threads, which will never arrive
   printf("Thread %d done and synchronized.\n", tid); 
 
 }
