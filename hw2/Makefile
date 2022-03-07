@@ -6,11 +6,19 @@ CFLAGS = -Wall -g
 
 CXXFLAGS = -O3 -std=c++11
 
-TARGETS: MMult1
+CXXFLAGS2 = -std=c++11 -Wall -fopenmp -O3
 
-MMult1: MMult1.cpp
-	$(CC) $(CXXFLAGS) -o MMult1 MMult1.cpp
+TARGETS: $(basename $(wildcard *.cpp)) $(basename $(wildcard *.c))
+
+all: $(TARGETS)
+
+%:%.cpp *.h
+	$(CC) $(CXXFLAGS) $< $(LIBS) -o $@
+
+%:%.c
+	$(CC) $(CXXFLAGS2) $< $(LIBS) -o $@
 
 clean:
-	rm -f MMult1 val_test01 val_test02
+	rm -f MMult1 val_test01 val_test02 omp_bug2 omp_bug3 omp_bug4 omp_bug5 omp_bug6
 
+.PHONY: all, clean
