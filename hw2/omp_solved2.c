@@ -15,7 +15,7 @@ int nthreads, i, tid;
 float total;
 
 /*** Spawn parallel region ***/
-#pragma omp parallel 
+#pragma omp parallel private(tid)  // make tid a private variable per thread
   {
   /* Obtain thread number */
   tid = omp_get_thread_num();
@@ -24,13 +24,14 @@ float total;
     nthreads = omp_get_num_threads();
     printf("Number of threads = %d\n", nthreads);
     }
+  #pragma omp barrier
   printf("Thread %d is starting...\n",tid);
 
   #pragma omp barrier
 
   /* do some work */
   total = 0.0;
-  #pragma omp for schedule(dynamic,10)
+  #pragma omp for schedule(dynamic,10) reduction(+: total) //ordered reduction(+: total) confirms this is just an issue of floating point arithmetic
   for (i=0; i<1000000; i++) 
      total = total + i*1.0;
 

@@ -18,7 +18,8 @@ all: $(TARGETS)
 %:%.c
 	$(CC) $(CXXFLAGS2) $< $(LIBS) -o $@
 
+
 clean:
-	rm -f MMult1 val_test01 val_test02 omp_bug2 omp_bug3 omp_bug4 omp_bug5 omp_bug6
+	rm -f MMult1 omp_solved2 omp_bug3 omp_bug4 omp_bug5 omp_bug6 val_test01_solved val_test02_solved
 
 .PHONY: all, clean

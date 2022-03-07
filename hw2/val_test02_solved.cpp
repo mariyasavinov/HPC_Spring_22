@@ -83,9 +83,11 @@ void junk_data ( )
     x[i] = i;
   }
 /* Need to initialize the remainder of the array before using it
-	in the following lines of the program
+	in the following lines of the program. Otherwise, valgrind
+	was returning the error of ``Conditional jump or move depends
+	on uninitialised value(s)" and ``Use of uninitilised value"
    We assume that the intention is for the remainder of 
-	uninitialized variables were meant to =0
+	uninitialized variables to all be =0
 */
   for ( i = 5; i<10; i++ )
   {
