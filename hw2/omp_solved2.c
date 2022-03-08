@@ -20,7 +20,8 @@ float total;
   /* Obtain thread number */
   tid = omp_get_thread_num();
   /* Only master thread does this */
-  if (tid == 0) {
+  #pragma omp master  // rather than going by tid, this enforces the master thread does this first
+    {
     nthreads = omp_get_num_threads();
     printf("Number of threads = %d\n", nthreads);
     }
