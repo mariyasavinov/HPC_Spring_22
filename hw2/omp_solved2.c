@@ -5,6 +5,25 @@
 * AUTHOR: Blaise Barney 
 * LAST REVISED: 04/06/05 
 ******************************************************************************/
+
+/******************************************************************************
+Comments on what was wrong: [Mariya Savinov]
+- Before the fix, tid is shared by all threads, preventing the printf statement
+	at the end to differentiate between the threads that run it because
+	tid is set and shared among all threads. Adding "private(tid)" clause
+	to the beginning of the parallel region fixes this
+- To enforce that the printf statement of the number of threads is performed
+	by only the master thread, change the if statement to a master directive
+	("pragma omp master")
+- Assuming the number of threads should be printed before "Thread x starting" is 
+	printed, added another barrier after the master directive.
+- The parallel for loop needs a reduction sum for total, otherwise the resultant
+	total is from a single thread's output.
+	Note that when running this code, the result varies around 5e11, but
+	this is an issue of floating point arithmetic since the total
+	is not added up the same way every time.
+
+******************************************************************************/
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -15,12 +34,12 @@ int nthreads, i, tid;
 float total;
 
 /*** Spawn parallel region ***/
-#pragma omp parallel private(tid)  // make tid a private variable per thread
+#pragma omp parallel private(tid)
   {
   /* Obtain thread number */
   tid = omp_get_thread_num();
   /* Only master thread does this */
-  #pragma omp master  // rather than going by tid, this enforces the master thread does this first
+  #pragma omp master 
     {
     nthreads = omp_get_num_threads();
     printf("Number of threads = %d\n", nthreads);
@@ -32,7 +51,7 @@ float total;
 
   /* do some work */
   total = 0.0;
-  #pragma omp for schedule(dynamic,10) reduction(+: total) //ordered reduction(+: total) confirms this is just an issue of floating point arithmetic
+  #pragma omp for schedule(dynamic,10) reduction(+: total)
   for (i=0; i<1000000; i++) 
      total = total + i*1.0;
 

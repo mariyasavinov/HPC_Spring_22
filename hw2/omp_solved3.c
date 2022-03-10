@@ -5,6 +5,18 @@
 * AUTHOR: Blaise Barney  01/09/04
 * LAST REVISED: 06/28/05
 ******************************************************************************/
+
+/******************************************************************************
+Comments on what was wrong: [Mariya Savinov]
+- It is necessary to remove the barrier directive in the function print_results.
+	"#pragma omp barrier" makes threads wait till all running threads
+	reach the barrier. However, the only threads that call this function
+	are the two threads assigned to section 1 and section 2. So the presence 
+	of the barrier stalls the program forever (as the remaining threads
+	will never reach this barrier).
+
+******************************************************************************/
+
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -83,8 +95,7 @@ void print_results(float array[N], int tid, int section)
     printf("\n");
   } /*** end of critical ***/
 
-  //#pragma omp barrier  // want it to be clear you are done and synchronizing after printing results of the section?  also this way all threads are exiting
- // otherwise these threads are stalled here waiting for remaining threads, which will never arrive
+  //#pragma omp barrier
   printf("Thread %d done and synchronized.\n", tid); 
 
 }

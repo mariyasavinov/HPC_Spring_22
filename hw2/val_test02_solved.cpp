@@ -1,3 +1,17 @@
+/******************************************************************************
+Comments on what was wrong: [Mariya Savinov]
+- Originally only the first 5 entries of x are initialized, but
+	the remaining lines of the program require the use of the remaining
+	entries e.g. to set x[2], x[5] as well as when x[i]=2x[i]
+- This resuts in a valgrind error of ``Conditional jump or move depends
+	on uninitialised value(s)" and ``Use of uninitilised value"
+- So, I assume that the intention is for the remainder of uninitialized
+	entries to be initialized as x[i] = i as well,
+	ultimately resulting in a 
+	print statement where x = [0 2 14 6 8 12 12 14 16 18]
+******************************************************************************/
+
+
 # include <cstdlib>
 # include <iostream>
 
@@ -82,16 +96,11 @@ void junk_data ( )
   {
     x[i] = i;
   }
-/* Need to initialize the remainder of the array before using it
-	in the following lines of the program. Otherwise, valgrind
-	was returning the error of ``Conditional jump or move depends
-	on uninitialised value(s)" and ``Use of uninitilised value"
-   We assume that the intention is for the remainder of 
-	uninitialized variables to all be =0
-*/
+
+  // Initialize remainder of array
   for ( i = 5; i<10; i++ )
   {
-    x[i] = 0;
+    x[i] = i;
   }
 
 //

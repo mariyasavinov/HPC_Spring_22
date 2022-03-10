@@ -6,6 +6,19 @@
 * AUTHOR: Blaise Barney  01/29/04
 * LAST REVISED: 04/06/05
 ******************************************************************************/
+
+/******************************************************************************
+Comments on what was wrong: [Mariya Savinov]
+- Added a barrier after the master directive to make the number of threads be
+	printed first.
+- In the first section, before lockb is set, locka needs to be unset, otherwise
+	the issue becomes that locka is set by section 1 and lockb is set by 
+	section 2, so there is deadlock.
+- In the second section, similarly lockb has to be unset before locka is set.
+- I.e., two unset lines have been moved higher in the code, one in each section
+
+******************************************************************************/
+
 #include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -34,7 +47,7 @@ omp_init_lock(&lockb);
     nthreads = omp_get_num_threads();
     printf("Number of threads = %d\n", nthreads);
     }
-  #pragma omp barrier // added barrier so that the number of threads is posted first
+  #pragma omp barrier // added barrier
   printf("Thread %d starting...\n", tid);
   #pragma omp barrier
 
@@ -46,13 +59,12 @@ omp_init_lock(&lockb);
       omp_set_lock(&locka);
       for (i=0; i<N; i++)
         a[i] = i * DELTA;
-      omp_unset_lock(&locka); //unlock moved to when thread is done with A, rather than waiting for when the thread is done with A and B because the other thread may be working with B
+      omp_unset_lock(&locka); // moved
       omp_set_lock(&lockb);
       printf("Thread %d adding a[] to b[]\n",tid);
       for (i=0; i<N; i++)
         b[i] += a[i];
       omp_unset_lock(&lockb);
-      //omp_unset_lock(&locka);
       }
 
     #pragma omp section
@@ -61,13 +73,12 @@ omp_init_lock(&lockb);
       omp_set_lock(&lockb);
       for (i=0; i<N; i++)
         b[i] = i * PI;
-      omp_unset_lock(&lockb); //unlock moved to when thread is done with B, rather than waiting to also do A as this may be locked by the other thread
+      omp_unset_lock(&lockb); // moved
       omp_set_lock(&locka);
       printf("Thread %d adding b[] to a[]\n",tid);
       for (i=0; i<N; i++)
         a[i] += b[i];
       omp_unset_lock(&locka);
-      //omp_unset_lock(&lockb);
       }
     }  /* end of sections */
   }  /* end of parallel region */
