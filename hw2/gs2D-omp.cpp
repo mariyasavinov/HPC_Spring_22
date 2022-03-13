@@ -11,10 +11,10 @@
 #include <math.h>
 #include "utils.h"
 
-// Defines a step of the Jacobi algorithm
-double Jacobi_step_ij(long N, long i, long j, double *u, double f_ij) { 
+// Defines a step of the Gauss Seidel algorithm
+double GS_step_ij(long N, long i, long j, double *u, double f_ij) { 
 	double h = 1.0/(N+1);
-	double ustep_ij = h*h*f_ij; 
+	double ustep_ij = h*h*f_ij;
 
 	for (int indx = 0; indx<N+2; indx++) {
 		for (int indy = 0; indy<N+2; indy++) {
@@ -23,7 +23,6 @@ double Jacobi_step_ij(long N, long i, long j, double *u, double f_ij) {
 			}
 		}
 	}
-	
 	ustep_ij = ustep_ij/4;
 
 	return ustep_ij;
@@ -64,14 +63,12 @@ int main(int argc, char** argv) {
 	// allocate memory for solution u, an (N+2)x(N+2) array of values
 	// as well as the step u_step and right-hand-side f
 	double* u = (double*) malloc((N+2)*(N+2) * sizeof(double));
-	double* u_step = (double*) malloc((N+2)*(N+2) * sizeof(double));
 	double* f = (double*) malloc((N+2)*(N+2) * sizeof(double));
 
 	// initialize solution u and step (all zero arrays) and f as = 1
 	for (int i = 0; i < N+2; i += 1) {
 		for (int j = 0; j<N+2; j += 1) {
 			u[i*(N+2)+j] = 0;
-			u_step[i*(N+2)+j] = 0;
 			f[i*(N+2)+j] = 1;
 		}
 	}
@@ -79,8 +76,8 @@ int main(int argc, char** argv) {
 	Timer t;
 	double res = N;
 	double ref_res = N;// = sqrt(N*N), this assumes that f = 1 and the initial guess is all zero vector;
+	long final_iter = max_iters;
 
-	
 	printf("For (N+2)x(N+2) grid with N=%d and Dirichlet boundary conditions u = 0:\n",N); 
 
 	if (print_res==1) {
@@ -89,26 +86,33 @@ int main(int argc, char** argv) {
 	t.tic();
 	for (long k = 0; k<max_iters; k+= 1) {
 		// Take 1 step of Jacobi
-		#pragma omp parallel shared(u, u_step, N)
+		#pragma omp parallel shared(u, N)
 		{
+		// update red points first
 		#pragma omp for
 		for (long i = 1; i < N+1; i++) {
 			for (long j = 1; j < N+1; j++) {
 				double u_ij = 0;
-				u_ij = Jacobi_step_ij(N, i, j, u, f[i*(N+2)+j]);
-				u_step[i*(N+2)+j] = u_ij;
+				if ((i+j)%2 ==0) {
+					u_ij = GS_step_ij(N, i, j, u, f[i*(N+2)+j]);
+					u[i*(N+2)+j] = u_ij;
+				}
 			}
 		}
-		}
-		// update the solution 
-				
-		for (long i = 0; i<N+2; i++) {
-			for (long j = 0; j<N+2; j++) {
-				u[i*(N+2)+j] = u_step[i*(N+2)+j];
-			}
-		}	
-
 		
+		// update black points second
+		#pragma omp for
+		for (long i = 1; i < N+1; i++) {
+			for (long j = 1; j < N+1; j++) {
+				double u_ij = 0;
+				if ((i+j)%2 == 1) {
+					u_ij = GS_step_ij(N, i, j, u, f[i*(N+2)+j]);
+					u[i*(N+2)+j] = u_ij;
+				}
+			}
+		}
+		}
+
 		// compute residual
 		double res = 0.;
 		#pragma omp parallel shared(u,N)
@@ -131,6 +135,7 @@ int main(int argc, char** argv) {
 		// stop iterating if the residual condition is reached
 		if (res/ref_res<1e-6) {
 			printf("Residual condition reached at iteration %d with 2-norm residual/reference being %e\n",k,res/ref_res);
+			final_iter = k;
 			break;
 		}
 		if (k+1==max_iters) {
@@ -146,7 +151,6 @@ int main(int argc, char** argv) {
 
 	//free allocated memory associated with the solution
 	free(u);
-	free(u_step);
 	free(f);
 
 	return 0;
