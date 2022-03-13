@@ -53,12 +53,17 @@ double compute_Au(int N, double *u, int i, int j) {
 // Main function
 int main(int argc, char** argv) {
 
-	int N = read_option<long>("-n", argc, argv,"25");
+	int N = read_option<long>("-n", argc, argv,"50");
 		// determines number of discrete points (N+2)x(N+2)
-	long max_iters = read_option<long>("-max_iters", argc, argv, "5000");
+	long max_iters = read_option<long>("-max_iters", argc, argv, "8000");
 		// default value is 5000
 	long print_res = read_option<long>("-print_res", argc, argv, "0");
 		// =1 if you want to print each residual
+	int threadnum = read_option<long>("-threads", argc, argv, "6");
+
+	if (threadnum>6) { // imposing max possible choice
+		threadnum = 6;
+	}
 
 	// allocate memory for solution u, an (N+2)x(N+2) array of values
 	// as well as the step u_step and right-hand-side f
@@ -74,19 +79,17 @@ int main(int argc, char** argv) {
 	}
 
 	Timer t;
-	double res = N;
 	double ref_res = N;// = sqrt(N*N), this assumes that f = 1 and the initial guess is all zero vector;
-	long final_iter = max_iters;
 
-	printf("For (N+2)x(N+2) grid with N=%d and Dirichlet boundary conditions u = 0:\n",N); 
+	printf("For (N+2)x(N+2) grid with N=%d, %d threads, and Dirichlet boundary conditions u = 0:\n",N,threadnum); 
 
 	if (print_res==1) {
 		printf(" Iter       2-Norm of Residual/reference\n");
 	}
 	t.tic();
-	for (long k = 0; k<max_iters; k+= 1) {
+	for (int k = 0; k<max_iters; k+= 1) {
 		// Take 1 step of Jacobi
-		#pragma omp parallel shared(u, N)
+		#pragma omp parallel shared(u, N) num_threads(threadnum)
 		{
 		// update red points first
 		#pragma omp for
@@ -115,7 +118,7 @@ int main(int argc, char** argv) {
 
 		// compute residual
 		double res = 0.;
-		#pragma omp parallel shared(u,N)
+		#pragma omp parallel shared(u,N) num_threads(threadnum)
 		{
 		#pragma omp for reduction(+: res)
 		for (int i  = 1; i<N+1; i++) {
@@ -135,7 +138,6 @@ int main(int argc, char** argv) {
 		// stop iterating if the residual condition is reached
 		if (res/ref_res<1e-6) {
 			printf("Residual condition reached at iteration %d with 2-norm residual/reference being %e\n",k,res/ref_res);
-			final_iter = k;
 			break;
 		}
 		if (k+1==max_iters) {
