@@ -5,7 +5,9 @@
 
 
 // Necessary packages
+#ifdef _OPENMP
 #include <omp.h>
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>

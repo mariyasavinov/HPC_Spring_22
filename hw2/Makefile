@@ -8,6 +8,8 @@ CXXFLAGS = -O3 -std=c++11
 
 CXXFLAGS2 = -std=c++11 -Wall -fopenmp -O3
 
+CXXFLAGS3 = -std=c++11 -march=native -fopenmp -O3
+
 TARGETS: $(basename $(wildcard *.cpp)) $(basename $(wildcard *.c))
 
 all: $(TARGETS)
@@ -20,6 +22,10 @@ all: $(TARGETS)
 
 jacobi2D-omp: jacobi2D-omp.cpp
 	$(CC) $(CXXFLAGS2) jacobi2D-omp.cpp -o jacobi2D-omp
+
+MMult1: MMult1.cpp
+	$(CC) $(CXXFLAGS3) MMult1.cpp -o MMult1
+
 
 gs2D-omp: gs2D-omp.cpp
 	$(CC) $(CXXFLAGS2) gs2D-omp.cpp -o gs2D-omp

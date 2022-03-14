@@ -5,7 +5,7 @@
 #include <omp.h>
 #include "utils.h"
 
-#define BLOCK_SIZE 16
+#define BLOCK_SIZE 44
 
 // Note: matrices are stored in column major order; i.e. the array elements in
 // the (m x n) matrix C are stored in the sequence: {C_00, C_10, ..., C_m0,
@@ -24,9 +24,89 @@ void MMult0(long m, long n, long k, double *a, double *b, double *c) {
   }
 }
 
+/*
+// Ordering option 1 for MMult1, no blocking
+
 void MMult1(long m, long n, long k, double *a, double *b, double *c) {
-  // TODO: See instructions below
+  for (long j = 0; j < n; j++) {
+    for (long i = 0; i < m; i++) {
+      for (long p = 0; p < k; p++) {
+        double A_ip = a[i+p*m];
+        double B_pj = b[p+j*k];
+        double C_ij = c[i+j*m];
+        C_ij = C_ij + A_ip * B_pj;
+        c[i+j*m] = C_ij;
+      }
+    }
+  }
 }
+*/
+
+/*
+
+// Ordering option 2 for MMult1, no blocking
+
+void MMult1(long m, long n, long k, double *a, double *b, double *c) {
+  for (long p = 0; p < k; p++) {
+    for (long i = 0; i < m; i++) {
+      for (long j = 0; j < n; j++) {
+        double A_ip = a[i+p*m];
+        double B_pj = b[p+j*k];
+        double C_ij = c[i+j*m];
+        C_ij = C_ij + A_ip * B_pj;
+        c[i+j*m] = C_ij;
+      }
+    }
+  }
+}
+*/
+
+/*
+// Ordering option 3 for MMult1, no blocking
+
+void MMult1(long m, long n, long k, double *a, double *b, double *c) {
+  for (long j = 0; j < n; j++) {
+    for (long p = 0; p < k; p++) {
+      for (long i = 0; i < m; i++) {
+        double A_ip = a[i+p*m];
+        double B_pj = b[p+j*k];
+        double C_ij = c[i+j*m];
+        C_ij = C_ij + A_ip * B_pj;
+        c[i+j*m] = C_ij;
+      }
+    }
+  }
+}
+*/
+
+
+
+// Blocking version of MMult1 (not parallelized)
+void MMult1(long m, long n, long k, double *a, double *b, double *c) {
+	long M = m/BLOCK_SIZE;
+	long N = n/BLOCK_SIZE;
+	long K = k/BLOCK_SIZE;
+	for (long j = 0; j < N; j++) {
+		for (long p = 0; p < K; p++) {
+			for (long i = 0; i < M; i++) {
+				// perform usual matrix matrix multiplication like in MMUlt0
+				for (long blockj = j*BLOCK_SIZE; blockj < (j+1)*BLOCK_SIZE; blockj++) {
+					for (long blockp = p*BLOCK_SIZE; blockp < (p+1)*BLOCK_SIZE; blockp++) {
+						for (long blocki = i*BLOCK_SIZE; blocki < (i+1)*BLOCK_SIZE; blocki++) {
+							double A_ip = a[blocki+blockp*m];
+							double B_pj = b[blockp+blockj*k];
+							double C_ij = c[blocki+blockj*m];
+							C_ij = C_ij + A_ip*B_pj;
+							c[blocki+blockj*m] = C_ij;
+						}
+					}
+				}
+			}
+		}
+	}
+
+}
+
 
 int main(int argc, char** argv) {
   const long PFIRST = BLOCK_SIZE;
@@ -58,8 +138,8 @@ int main(int argc, char** argv) {
       MMult1(m, n, k, a, b, c);
     }
     double time = t.toc();
-    double flops = 0; // TODO: calculate from m, n, k, NREPEATS, time
-    double bandwidth = 0; // TODO: calculate from m, n, k, NREPEATS, time
+    double flops = 2*m*n*k*NREPEATS / 1e9 / time;
+    double bandwidth =  2*m*n*(k+1)*NREPEATS * sizeof(double) / 1e9 / time; //2*m*n*(k/BLOCK_SIZE+1)*NREPEATS * sizeof(double) / 1e9 / time;
     printf("%10d %10f %10f %10f", p, time, flops, bandwidth);
 
     double max_err = 0;
