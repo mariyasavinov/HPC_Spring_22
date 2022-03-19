@@ -4,6 +4,9 @@
 #include <math.h>
 #include <omp.h>
 #include "utils.h"
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #define BLOCK_SIZE 44
 
@@ -79,8 +82,7 @@ void MMult1(long m, long n, long k, double *a, double *b, double *c) {
 }
 */
 
-
-
+/*
 // Blocking version of MMult1 (not parallelized)
 void MMult1(long m, long n, long k, double *a, double *b, double *c) {
 	long M = m/BLOCK_SIZE;
@@ -106,6 +108,38 @@ void MMult1(long m, long n, long k, double *a, double *b, double *c) {
 	}
 
 }
+*/
+
+// OpenMP parallel blocking version of MMult1
+void MMult1(long m, long n, long k, double *a, double *b, double *c) {
+	long M = m/BLOCK_SIZE;
+	long N = n/BLOCK_SIZE;
+	long K = k/BLOCK_SIZE;
+	#pragma omp parellel
+	{
+	#pragma omp for
+	for (long j = 0; j < N; j++) {
+		for (long p = 0; p < K; p++) {
+			for (long i = 0; i < M; i++) {
+				// perform usual matrix matrix multiplication like in MMUlt0
+				for (long blockj = j*BLOCK_SIZE; blockj < (j+1)*BLOCK_SIZE; blockj++) {
+					for (long blockp = p*BLOCK_SIZE; blockp < (p+1)*BLOCK_SIZE; blockp++) {
+						for (long blocki = i*BLOCK_SIZE; blocki < (i+1)*BLOCK_SIZE; blocki++) {
+							double A_ip = a[blocki+blockp*m];
+							double B_pj = b[blockp+blockj*k];
+							double C_ij = c[blocki+blockj*m];
+							C_ij = C_ij + A_ip*B_pj;
+							c[blocki+blockj*m] = C_ij;
+						}
+					}
+				}
+			}
+		}
+	}
+	}
+
+}
+
 
 
 int main(int argc, char** argv) {
