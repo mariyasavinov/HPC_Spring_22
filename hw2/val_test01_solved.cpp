@@ -1,7 +1,7 @@
 /******************************************************************************
 Comments on what was wrong: [Mariya Savinov]
 - There is an invalid write because x is an n-sized array with entries 
-	x[0], x[1], ..., x[n-1] (so no entry x[n]. As such, the loop over
+	x[0], x[1], ..., x[n-1] (so no entry x[n]). As such, the loop over
 	i should go from i=2 to i<n
 - The delete[] operator is used to destroy objects created with new[], but
 	since x was NOT created with new[], we just need to free the allocated

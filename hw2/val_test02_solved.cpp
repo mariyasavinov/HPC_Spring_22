@@ -4,7 +4,7 @@ Comments on what was wrong: [Mariya Savinov]
 	the remaining lines of the program require the use of the remaining
 	entries e.g. to set x[2], x[5] as well as when x[i]=2x[i]
 - This resuts in a valgrind error of ``Conditional jump or move depends
-	on uninitialised value(s)" and ``Use of uninitilised value"
+	on uninitialised value(s)" and ``Use of uninitialised value"
 - So, I assume that the intention is for the remainder of uninitialized
 	entries to be initialized as x[i] = i as well,
 	ultimately resulting in a 

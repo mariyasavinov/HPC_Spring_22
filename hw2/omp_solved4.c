@@ -12,7 +12,7 @@ Comments on what was wrong: [Mariya Savinov]
 	version of a, which is a sufficiently large 2D array.
 	Instead, I've changed a to a double pointer and at the beginning
 	of the parallel section each thread has N^2 size memory allocated
-	for the private variale a using malloc. This memory is freed
+	for the private variable a using malloc. This memory is freed
 	at the end of the parallel section.
 	This also required slightly changing how a is indexed in the private work.
 	This fixes the segmentation fault.
