@@ -1,5 +1,3 @@
-// g++ -fopenmp -O3 -march=native MMult1.cpp && ./a.out
-
 #include <stdio.h>
 #include <math.h>
 #include <omp.h>
