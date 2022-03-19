@@ -8,7 +8,7 @@
 #include <omp.h>
 #endif
 
-#define BLOCK_SIZE 44
+#define BLOCK_SIZE 120 //optimal block_size for the original machine is 100
 
 // Note: matrices are stored in column major order; i.e. the array elements in
 // the (m x n) matrix C are stored in the sequence: {C_00, C_10, ..., C_m0,
@@ -139,7 +139,6 @@ void MMult1(long m, long n, long k, double *a, double *b, double *c) {
 	}
 
 }
-
 
 
 int main(int argc, char** argv) {
