@@ -15,7 +15,14 @@ Comments on what was wrong: [Mariya Savinov]
 	the issue becomes that locka is set by section 1 and lockb is set by 
 	section 2, so there is deadlock.
 - In the second section, similarly lockb has to be unset before locka is set.
-- I.e., two unset lines have been moved higher in the code, one in each section
+- Then, in order for a to be added to b before a is changed, both locka AND lockb
+	need to be set in each section (in the same order) and both are unset at the end.
+	This way one thread adds one vector to the other ENTIRELY before the 2nd thread
+	adds them in the opposite manner.
+- I.e., either a is added to b entirely  and then b is added to a; or b is added 
+	to a entirely and then a is added to b.
+- The order of which is added to which first just depends on which thread
+	sets a lock first.
 
 ******************************************************************************/
 
@@ -59,11 +66,13 @@ omp_init_lock(&lockb);
       omp_set_lock(&locka);
       for (i=0; i<N; i++)
         a[i] = i * DELTA;
-      omp_unset_lock(&locka); // moved
+      omp_unset_lock(&locka); // added
+      omp_set_lock(&locka); // added
       omp_set_lock(&lockb);
       printf("Thread %d adding a[] to b[]\n",tid);
       for (i=0; i<N; i++)
         b[i] += a[i];
+      omp_unset_lock(&locka);
       omp_unset_lock(&lockb);
       }
 
@@ -73,16 +82,17 @@ omp_init_lock(&lockb);
       omp_set_lock(&lockb);
       for (i=0; i<N; i++)
         b[i] = i * PI;
-      omp_unset_lock(&lockb); // moved
-      omp_set_lock(&locka);
+      omp_unset_lock(&lockb); // added
+      omp_set_lock(&locka);   
+      omp_set_lock(&lockb);   // added
       printf("Thread %d adding b[] to a[]\n",tid);
       for (i=0; i<N; i++)
         a[i] += b[i];
       omp_unset_lock(&locka);
+      omp_unset_lock(&lockb);
       }
     }  /* end of sections */
   }  /* end of parallel region */
-
 }
 
 
