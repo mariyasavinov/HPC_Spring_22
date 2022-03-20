@@ -18,7 +18,7 @@ Comments on what was wrong: [Mariya Savinov]
 - Then, in order for a to be added to b before a is changed, both locka AND lockb
 	need to be set in each section (in the same order) and both are unset at the end.
 	This way one thread adds one vector to the other ENTIRELY before the 2nd thread
-	adds them in the opposite manner.
+	adds them in the opposite manner. (In sum, we are avoiding a race condition) 
 - I.e., either a is added to b entirely  and then b is added to a; or b is added 
 	to a entirely and then a is added to b.
 - The order of which is added to which first just depends on which thread
