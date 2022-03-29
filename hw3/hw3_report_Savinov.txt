@@ -1,0 +1,66 @@
+HW3 report -- Mariya Savinov
+---------------------------
+Problem 1
+---------------------------
+Pitch sent via email on evening of March 27th,
+including a project destription in pdf form
+
+---------------------------
+Problem 2
+---------------------------
+Chose to improve the accuracy of sin4_vec() to 12 digits
+Running fast-sin yields results like:
+
+
+Reference time: 12.9920
+Taylor time:    1.5044      Error: 6.928125e-12
+Intrin time:    0.5359      Error: 2.454130e-03
+Vector time:    0.6856      Error: 6.928125e-12
+
+
+---------------------------
+Problem 3
+---------------------------
+The Linux kernel architecture is 64-bit and the processor
+used for these timings is the Intel i7-8700 with 6 CPUS,
+12 total threads, CPU speed 3.20 GHz
+
+	Running with 1 thread:
+
+sequential-scan = 0.278586s
+parallel-scan   = 0.343925s
+error = 0
+
+	Running with 2 threads:
+
+sequential-scan = 0.278724s
+parallel-scan   = 0.214293s
+error = 0
+
+	Running with 3 threads:
+
+sequential-scan = 0.276888s
+parallel-scan   = 0.171872s
+error = 0
+
+	Running with 4 threads:
+
+sequential-scan = 0.278766s
+parallel-scan   = 0.149574s
+error = 0
+
+	Running with 5 threads:
+
+sequential-scan = 0.279109s
+parallel-scan   = 0.137539s
+error = 0
+
+	Running with 6 threads:
+
+sequential-scan = 0.278905s
+parallel-scan   = 0.132760s
+error = 0
+
+There is clear improvement as the number of threads increases,
+with overhead coming from the serial part of the code
+corresponding to the correction part.
