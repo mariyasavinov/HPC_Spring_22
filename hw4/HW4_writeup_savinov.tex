@@ -1,0 +1,67 @@
+\documentclass[10pt, letterpaper]{article}
+\usepackage{sectsty}
+\usepackage[margin=0.9in]{geometry}
+\usepackage{authblk}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+%\usepackage{color,soul}
+%\usepackage[toc,page]{appendix}
+\usepackage{hyperref}
+\usepackage{url}
+
+\newcommand\tab[1][1cm]{\hspace*{#1}}
+\newcommand\texttab[1][0.5cm]{\hspace*{#1}}
+\newcommand {\beq} {\begin{equation}}
+\newcommand {\eeq} {\end{equation}}
+\newcommand{\pr}[1]{\left(#1\right)}
+\newcommand{\br}[1]{\left[#1\right]}
+\newcommand{\norm}[1]{\left\lVert#1\right\rVert}
+\newcommand{\abs}[1]{\left|#1\right|}
+\newcommand{\mat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+
+\sectionfont{\fontsize{12}{15}\selectfont}
+
+
+\begin{document}
+\begin{center}
+{\bf
+Advanced Topics in Numerical Analysis, High Performance Computing: \textbf{Assignment 4} \\
+}
+Mariya Savinov, mariyasavinov@nyu.edu\\
+Repo location: \url{https://github.com/mariyasavinov/HPC_Spring_22.git}
+\end{center}
+
+\section{Matrix-vector operations on a GPU}
+After successfully implementing a parallelized element-wise product between two-vectors (which could then be summed to achieve the inner product of the two vectors), I generalized this code to a matrix-vector multiplication (both on the CPU with OpenMP and on the GPU with CUDA). For the CPU part, the CPU parallel section is completed with the 32 threads on both of the following machines.\\\\
+On {\tt cuda2}, which has an {\tt NVIDIA GeForce RTX 2080 Ti} GPU and {\tt Intel Xeon E5-2660 v3} CPU (2.60 Hz):
+\begin{verbatim}
+CPU 0.066537 s
+CPU Bandwidth: 6.051574 GB/s
+
+GPU 0.029899 s, 0.003756 s
+GPU Bandwidth: 13.467070 GB/s
+
+Error = 0.000000
+\end{verbatim}
+On {\tt cuda3}, which has an {\tt NVIDIA TITAN V} GPU and {\tt Intel Zeon Gold 5118} CPU (2.30 Hz):
+\begin{verbatim}
+CPU 0.116728 s
+CPU Bandwidth: 3.449496 GB/s
+
+GPU 0.033467 s, 0.002017 s
+GPU Bandwidth: 12.031516 GB/s
+
+Error = 0.000000
+\end{verbatim}
+\section{2D Jacobi method on a GPU}
+
+
+\section{Update on final project}
+Thus far, Paul Beckman and I have implemented and are in the process of debugging a serial version of the Barnes-Hut multipole algorithm built on a tree data structure. It has become throughout this process that it may be difficult to parallelize the tree-based implementation, due to its reliance on recursive function calls and pointer linkages. Our plans are to complete a basic OpenMP parallelization on the tree-based implementation, but then to experiment with developing an alternative array data structure implementation for more efficient parallelization.
+
+
+
+\end{document}
+
