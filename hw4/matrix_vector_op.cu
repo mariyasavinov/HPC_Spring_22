@@ -1,5 +1,7 @@
+// author: Mariya Savinov
 // $ nvcc -arch=sm_61 matrix_vector_op.cu -o matrix_vector_op -Xcompiler -fopenmp
 // flag -Xcompiler passes next flag directly to compiler
+
 #include <algorithm>
 #include <stdio.h>
 #include <omp.h>
@@ -89,7 +91,7 @@ int main() {
   //cudaMalloc(&y_d, N*sizeof(double));		//for vector-vector mult
   cudaMalloc(&z_d, N*sizeof(double));
 	cudaMalloc(&A_d, N*N*sizeof(double));
-  Check_CUDA_Error("malloc x failed");
+  Check_CUDA_Error("malloc A failed");
 
   tt = omp_get_wtime();
   cudaMemcpy(x_d, x, N*sizeof(double), cudaMemcpyHostToDevice);
