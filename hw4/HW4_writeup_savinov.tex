@@ -59,8 +59,8 @@ Note that the first number for the GPU is total time including memory transfer t
 
 \newpage
 \section{2D Jacobi method on a GPU}
-The CPU parallelized version of the Jacobi method in 2D is retained from assignment 2, which has fairly large runtime for even small $(N+2)\times(N+2)$ 2D grid sizes because we made use of very inefficient {\tt if} statements. However, since we know that the originally submitted CPU code converges (the residual reduces at each step appropriately), we retain it in full without changes in order to assess the accuracy of the GPU implementation. As before, the CPU parallelization is done with 6 threads.\\\\
-We test the CPU results against the GPU results on {\tt cuda2}, which has an {\tt NVIDIA GeForce RTX 2080 Ti} GPU and {\tt Intel Xeon E5-2660 v3} CPU (2.60 Hz). Testing for $N=32$, $N=64$, and $N=128$ for 100 iterations of Jacobi, we find that:
+The CPU parallelized version of the Jacobi method in 2D is retained from assignment 2, which has fairly large runtime for even small $(N+2)\times(N+2)$ 2D grid sizes because it makes use of very inefficient {\tt if} statements. However, since we know that the originally submitted CPU code converges (the residual reduces at each step appropriately), I retained it in full without changes in order to assess the accuracy of the GPU implementation. As before, the CPU parallelization is done with 6 threads.\\\\
+We test the CPU results against the GPU results on {\tt cuda2}, which has an {\tt NVIDIA GeForce RTX 2080 Ti} GPU and {\tt Intel Xeon E5-2660 v3} CPU (2.60 Hz). Testing for $N=32$, $N=64$, and $N=128$ for 100 iterations of Jacobi, I find that:
 \begin{verbatim}
 N=32
 --------
@@ -89,7 +89,7 @@ Using GPU with cuda:
 GPU 0.008669 s, 0.008427 s
 Error = 0.000000
 \end{verbatim}
-It is clear that the GPU implementation is correct, as compared to the same computation with the CPU implementation from assignment 2. Notably, the GPU implementation is significantly faster, especially for large grid sizes. We expect that even if the CPU implementation was modified to eliminate inefficient aspects, that the GPU performance would be faster for sufficiently large $N$ values (at small $N$ values, it is expected that the memory transfer would hurt the GPU performance in comparison to the CPU). Notice though that unlike for the first problem, memory transfer to/from the CPU takes up significantly less of the total time of the GPU computation since much smaller sized matrices/arrays are being used here.
+It is clear that the GPU implementation is correct, as compared to the same computation with the CPU implementation from assignment 2. Notably, the GPU implementation is significantly faster, especially for large grid sizes. I expect that even if the CPU implementation was modified to eliminate inefficient aspects, that the GPU performance would be faster for sufficiently large $N$ values (at small $N$ values, it is expected that the memory transfer would hurt the GPU performance in comparison to the CPU). Notice though that unlike for the first problem, memory transfer to/from the CPU takes up significantly less of the total time of the GPU computation since much smaller sized matrices/arrays are being used here.
 
 
 \section{Update on final project}
